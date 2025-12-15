@@ -1,6 +1,6 @@
 # Blueprints for Home devices
 from flask import Blueprint, request, jsonify
-import app
+from app.extensions import limiter, socketio
 from app.services.device_service import add_device, get_devices, send_command_to_device, get_device, update, delete_device, patch
 from app.models.schema import device_schema, patch_schema, validate_request
 from app.utils.auth import require_api_key
@@ -31,7 +31,7 @@ def new_device():
   
   device = add_device(validated)
   
-  app.socketio.emit("device_created", device)
+  socketio.emit("device_created", device)
   
   logging.info("Device created: %s", device["name"])
 
@@ -54,6 +54,7 @@ def list_device(device_id):
 
 
 @device_bp.route("/update/<device_id>", methods=["PUT"])
+@limiter.limit("10 per minute")
 @require_api_key
 def update_device(device_id):
   data = request.json
@@ -66,7 +67,7 @@ def update_device(device_id):
   if not updated:
     return jsonify({"error": "Device not found"}), 404
   
-  app.socketio.emit(
+  socketio.emit(
     "device_updated",
     {
       "device_id": updated["id"],
@@ -101,7 +102,7 @@ def partial_update(device_id):
   if not updated:
     return jsonify({"error": "Device not found"}), 404
   
-  app.socketio.emit(
+  socketio.emit(
     "device_partially_updated",
     {
       "device_id": updated["id"],
@@ -122,7 +123,7 @@ def delete(device_id):
   if not deleted:
     return jsonify({"error": "Device not found"}), 404
   
-  app.socketio.emit("Device_deleted", {"device_id": device_id})
+  socketio.emit("Device_deleted", {"device_id": device_id})
   
   logging.warning("Device deleted: %s", device_id)
 
@@ -136,6 +137,7 @@ def delete(device_id):
 
 
 @device_bp.route("/<device_id>/command/", methods=["POST"])
+@limiter.limit("5 per minute")
 @require_api_key
 def command_device(device_id):
   command = request.json

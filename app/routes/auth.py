@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, create_access_token
 from app.services.user_service import create_user, authenticate_user
 from app.utils.audit import log_audit_event
 import logging
+from app.extensions import limiter
 
 
 auth_bp = Blueprint("auth", __name__)
@@ -27,6 +28,7 @@ def register():
 
 
 @auth_bp.route("/login", methods=["POST"])
+@limiter.limit("5 per minute")
 def login():
   data = request.json
   user = authenticate_user(data["username"], data["password"])

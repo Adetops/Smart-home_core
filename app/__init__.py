@@ -5,10 +5,11 @@ from app.routes.devices import device_bp
 from app.routes.auth import auth_bp
 from app.config.security import JWT_SECRET_KEY
 from app.utils.logger import setup_logger
-from flask_socketio import SocketIO
+from app.extensions import limiter, socketio
+from app.utils.rate_limiter import rate_limit_exceeded
+
 
 jwt = JWTManager()
-socketio = SocketIO(cors_allowed_origins="*")
 
 
 def create_app():
@@ -21,5 +22,7 @@ def create_app():
   setup_logger()
   socketio.init_app(app)
   from app.routes import socket_events
+  limiter.init_app(app)
+  app.register_error_handler(429, rate_limit_exceeded)
   
   return app
