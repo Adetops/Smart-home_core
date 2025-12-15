@@ -5,9 +5,11 @@ from app.routes.devices import device_bp
 from app.routes.auth import auth_bp
 from app.config.security import JWT_SECRET_KEY
 from app.utils.logger import setup_logger
-
+from flask_socketio import SocketIO
 
 jwt = JWTManager()
+socketio = SocketIO(cors_allowed_origins="*")
+
 
 def create_app():
   app = Flask(__name__)
@@ -17,5 +19,7 @@ def create_app():
   app.register_blueprint(device_bp, url_prefix="/devices")
   app.register_blueprint(auth_bp, url_prefix="/auth")
   setup_logger()
+  socketio.init_app(app)
+  from app.routes import socket_events
   
   return app
