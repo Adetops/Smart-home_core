@@ -1,7 +1,7 @@
 import threading
 import time
 # from datetime import datetime, timezone
-from app.services.service import get_devices, update
+from app.services.device_service import get_devices, update
 # from app.utils.temp import get_temperature
 
 # -----------------------------

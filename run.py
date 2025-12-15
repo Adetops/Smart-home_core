@@ -1,4 +1,4 @@
-#Initiates the app
+# Initiates the app
 from app import create_app
 from app.simulation.simulation import start_simulation_engine
 
