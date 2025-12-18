@@ -1,27 +1,24 @@
 import os
-from pymongo import MongoClient
-from pymongo.errors import ServerSelectionTimeoutError
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
-# MongoDB connection URI (env-first, fallback to local)
-MONGO_URI = os.getenv(
-  "MONGO_URI",
-  "mongodb://localhost:27017/home_automation"
+username = os.getenv("MONGODB_USERNAME")
+password = os.getenv("MONGODB_PASSWORD")
+cluster = os.getenv("MONGODB_CLUSTER")
+db_name = os.getenv("MONGODB_DB")
+
+if not all([username, password, cluster, db_name]):
+    raise RuntimeError("MongoDB environment variables are not set")
+
+uri = (
+    f"mongodb+srv://{username}:{password}@{cluster}/"
+    f"{db_name}?retryWrites=true&w=majority"
 )
 
-# Create client with timeout (prevents app hanging forever)
-client = MongoClient(
-  MONGO_URI,
-  serverSelectionTimeoutMS=5000
-)
+client = MongoClient(uri, server_api=ServerApi("1"))
 
 try:
-  # Force connection check at startup
-  client.admin.command("ping")
-except ServerSelectionTimeoutError as e:
-  raise RuntimeError(f"MongoDB connection failed: {e}")
-
-# Get database from URI
-db = client.get_default_database()
-
-# Collections
-devices_collection = db["devices"]
+    client.admin.command("ping")
+    print("MongoDB connected successfully")
+except Exception as e:
+    raise RuntimeError(f"MongoDB connection failed: {e}")
