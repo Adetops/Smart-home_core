@@ -10,10 +10,7 @@ db_name = os.getenv("MONGODB_DB")
 if not all([username, password, cluster, db_name]):
     raise RuntimeError("MongoDB environment variables are not set")
 
-uri = (
-    f"mongodb+srv://{username}:{password}@{cluster}/"
-    f"{db_name}?retryWrites=true&w=majority"
-)
+uri = os.getenv("MONGODB_URI")
 
 client = MongoClient(uri, server_api=ServerApi("1"))
 
