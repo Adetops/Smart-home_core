@@ -7,3 +7,7 @@ logs/
 *.html
 *.json
 node_modules/
+Dockerfile
+docker-compose.yml
+documentation/
+docs

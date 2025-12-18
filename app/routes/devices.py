@@ -16,6 +16,14 @@ device_bp = Blueprint("devices", __name__)
 
 @device_bp.route("/", methods=["GET"])
 def list_devices():
+  """
+  Retrieve all registered devices
+  ---
+  responses:
+    200:
+      description: Devices
+  """
+
   return jsonify(get_devices())
 
 
@@ -23,6 +31,16 @@ def list_devices():
 @jwt_required()
 @require_role("admin")
 def new_device():
+  """
+  Create a new device
+  ---
+  responses:
+    200:
+      description: Device created
+    400:
+      description: Bad request
+  """
+        
   data = request.json
   
   validated = validate_request(device_schema, data)
@@ -47,6 +65,14 @@ def new_device():
 
 @device_bp.route("/<device_id>", methods=["GET"])
 def list_device(device_id):
+  """
+  Retrieve a device by its ID
+  ---
+  responses:
+    404:
+      description: Device not found
+  """
+ 
   device = get_device(device_id)
   if not device:
     return jsonify({"error": "Device not found"}), 404
@@ -57,6 +83,16 @@ def list_device(device_id):
 @limiter.limit("10 per minute")
 @require_api_key
 def update_device(device_id):
+  """
+  Update a device
+  ---
+  responses:
+    404:
+      description: Device not found
+    400:
+      description: Bad request
+  """
+ 
   data = request.json
   validated = validate_request(device_schema, data)
   if "errors" in validated:
@@ -91,6 +127,16 @@ def update_device(device_id):
 @device_bp.route("/patch/<device_id>", methods=["PATCH"])
 @require_api_key
 def partial_update(device_id):
+  """
+  partially update a device
+  ---
+  responses:
+    404:
+      description: Device not found
+    400:
+      description: Bad request
+  """
+ 
   data = request.json
   
   # allow any subfield of a device
@@ -118,6 +164,14 @@ def partial_update(device_id):
 @jwt_required()
 @require_role("admin")
 def delete(device_id):
+  """
+  Delete a device
+  ---
+  responses:
+    404:
+      description: Device not found
+  """
+ 
   deleted= delete_device(device_id)
   
   if not deleted:
@@ -140,6 +194,16 @@ def delete(device_id):
 @limiter.limit("5 per minute")
 @require_api_key
 def command_device(device_id):
+  """
+  Give command to a device
+  ---
+  responses:
+    404:
+      description: Device not found
+    400:
+      description: Bad request
+  """
+ 
   command = request.json
   
   result = send_command_to_device(device_id, command)

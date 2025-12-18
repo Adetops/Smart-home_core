@@ -1,5 +1,6 @@
 # Initiates the app
-from app import create_app, socketio
+from app import create_app
+from app.extensions import socketio
 from app.simulation.simulation import start_simulation_engine
 
 app = create_app()

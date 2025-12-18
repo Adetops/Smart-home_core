@@ -1,11 +1,27 @@
+import os
 from pymongo import MongoClient
+from pymongo.errors import ServerSelectionTimeoutError
 
+# MongoDB connection URI (env-first, fallback to local)
+MONGO_URI = os.getenv(
+  "MONGO_URI",
+  "mongodb://localhost:27017/home_automation"
+)
 
-# Connect to the local MongoDb instance
-client = MongoClient("mongodb://localhost:27017/")
+# Create client with timeout (prevents app hanging forever)
+client = MongoClient(
+  MONGO_URI,
+  serverSelectionTimeoutMS=5000
+)
 
-# select [or create] the database
-db = client["home_automation"]
+try:
+  # Force connection check at startup
+  client.admin.command("ping")
+except ServerSelectionTimeoutError as e:
+  raise RuntimeError(f"MongoDB connection failed: {e}")
 
-# select [or create] the collection
+# Get database from URI
+db = client.get_default_database()
+
+# Collections
 devices_collection = db["devices"]

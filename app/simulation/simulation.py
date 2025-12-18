@@ -24,7 +24,7 @@ def simulate_device_behavior(device):
     if state.get("temperature") != round(temp, 1):
       state["temperature"] = round(temp, 1)
       updated = True
-      print(f"Sensor {device['id']} temperature updated to {state['temperature']}")
+      # print(f"Sensor {device['id']} temperature updated to {state['temperature']}")
 
   # ---------- LIGHT ----------
   if device_type == "light":
@@ -50,7 +50,7 @@ def simulate_device_behavior(device):
         # Remove ON flags
         state.pop("on_since", None)
 
-        print(f"Light {device['id']} auto-turned OFF after 10s")
+        # print(f"Light {device['id']} auto-turned OFF after 10s")
 
     else:
       # Currently OFF → check if 2s elapsed
@@ -64,7 +64,7 @@ def simulate_device_behavior(device):
         # Remove OFF flags
         state.pop("off_since", None)
 
-        print(f"Light {device['id']} auto-turned ON after 2s")
+        # print(f"Light {device['id']} auto-turned ON after 2s")
 
     # Persist changes
     update(device["id"], {"state": state})
@@ -77,13 +77,13 @@ def simulate_device_behavior(device):
       if time.time() - last > 5:
         state["motion"] = False
         updated = True
-        print(f"Motion sensor {device['id']} reset")
+        # print(f"Motion sensor {device['id']} reset")
 
   # Persist changes to DB if anything updated
   if updated:
     try:
       updated_device = update(device["id"], {"state": state})
-      print(f"Device {device['id']} updated in DB: {updated_device['state']}")
+      # print(f"Device {device['id']} updated in DB: {updated_device['state']}")
     except Exception as e:
       print(f"Error updating device {device['id']}: {e}")
 
@@ -98,7 +98,7 @@ def simulation_loop():
   while True:
     try:
       devices = get_devices()
-      print(f"Fetched {len(devices)} devices")
+      # print(f"Fetched {len(devices)} devices")
       for device in devices:
         simulate_device_behavior(device)
       time.sleep(2)
@@ -116,4 +116,4 @@ def start_simulation_engine():
   """
   thread = threading.Thread(target=simulation_loop, daemon=True)
   thread.start()
-  print("Simulation engine started in background thread.")
+  # print("Simulation engine started in background thread.")
