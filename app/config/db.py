@@ -19,3 +19,7 @@ try:
     print("MongoDB connected successfully")
 except Exception as e:
     raise RuntimeError(f"MongoDB connection failed: {e}")
+
+
+db = client[db_name]
+devices_collection = db["devices"]
